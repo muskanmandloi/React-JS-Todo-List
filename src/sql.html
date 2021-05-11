@@ -1,0 +1,252 @@
+--SQL ASSIGNMENT 2
+BY MUSKAN MANDLOI
+
+create table LOCA_TION(
+loc_id number(4) primary key,
+regional_group varchar2(28)
+);
+desc LOCA_TION;
+insert into LOCA_TION values (122,'NEW YORK');
+insert into LOCA_TION values (123,'DALLAS');
+insert into LOCA_TION values (124,'CHICAGO');
+insert into LOCA_TION values (125,'BOSTON');
+select * from LOCA_TION;
+
+create table Departmentss(
+dep_id number(4) primary key,
+d_name varchar2(35),
+loc_id number(5) references LOCA_TION(loc_id)
+);
+
+insert into Departmentss values (10,'ACCOUNT NAME',122);
+insert into Departmentss values (20,'RESEARCH',124);
+insert into Departmentss values (30,'SALES',123);
+insert into Departmentss values (40,'OPERATIONS',129);
+
+select * from Departmentss;
+
+
+create table JOB(
+job_id number(4) primary key,
+functions varchar2(36)
+);
+
+insert into JOB values(667,'CLERK');
+insert into JOB values(668,'STAFF');
+insert into JOB values(669,'ANALYST');
+insert into JOB values(670,'SALESPERSON');
+insert into JOB values(671,'MANAGER');
+insert into JOB values(672,'PRESIDENT');
+
+create table Employees(
+ emp_id number(10) primary key,
+ last_name varchar2(40),
+ first_name varchar2(40),
+ middle_name varchar2(40),
+ job_id number(10),
+ manager_id number(10),
+ hireddate date,
+ salary number(4),
+ comm number(5),
+ dep_id number(4)  references Departmentss(dep_id));
+ 
+ 
+ desc Employees;
+ 
+ insert into Employees values (7369,'SMITH','JOHN','Q',667,7902,date '2020-02-04',800, null,20);
+insert into Employees values (7499,'ALLEN','KEVIN','J',670,7902, date '2020-01-14',1600,300,30);
+ insert into Employees values (7505,'DOYLE','JEAN','K',671,7902,date'2021-03-07',2850, null,20);
+ insert into Employees values (7506,'DENNIS','LYNE','S',671,7902,date'2021-07-07',2750, null,20);
+ insert into Employees values (7507,'BAKER','LESLIE','D',671,7902,date'2021-03-07',2200, null,20);
+ insert into Employees values (7521,'WARK','CYNATH','D',670,7902,date'2021-02-07',1250,500,20);
+
+
+--5
+select first_name, last_name,salary,comm from Employees;
+
+--6
+select emp_id ,last_name,dep_id as department_ID from Employees;
+
+--7
+select last_name,salary*12 from Employees;
+
+--8
+select * from Employees where last_name='SMITH';
+
+--9
+select * from Employees where dep_id=20;
+
+--10
+select * from Employees where salary between 3000 and 4500;
+
+--11
+select * from Employees where dep_id in (10,20);
+
+--12
+select * from Employees where dep_id not in(10,30);
+
+--13
+select * from Employees where last_name  like 'S%';
+
+--14
+select * from Employees where last_name  like 'S%H';
+
+--15
+select * from Employees where last_name  like 'S____';
+
+--16
+select * from Employees where dep_id=10 and salary>3500;
+
+--17
+select * from Employees where comm is NULL;
+
+--18
+select emp_id,last_name from Employees order by emp_id asc;
+
+--19
+select emp_id,last_name,salary from Employees order by salary desc;
+
+--20
+select last_name , salary from Employees order by emp_id asc, salary desc; 
+
+--21
+select last_name, dep_id from Employees order by dep_id desc,last_name asc;
+
+--22 GROUP BY AND HAVING CLAUSE
+select dep_id, count(*) from Employees group by dep_id;
+
+--23 
+select dep_id,count(*),max(salary),min(salary),avg(salary) from Employees group by dep_id;
+
+--24
+select job_id,count(*),max(salary),min(salary),avg(salary) from Employees group by job_id; 
+
+--25
+select count(*) from Employees group by extract (month from hireddate),extract(year from hireddate) order by extract(month from hireddate);
+
+--26
+select  count(*) from Employees group by to_char(hireddate,'month');
+
+--27
+select dep_id,count(*) from Employees group by dep_id having count(*)>=4;
+
+--28
+select to_char(hireddate,'month')month,count(*) from Employees group by to_char(hireddate,'month') having to_char(hireddate,'month')='jan';
+
+--29
+select to_char(hireddate,'yyyy')year, count(*) from Employees group by to_char(hireddate,'yyyy') having to_char(hireddate,'yyyy') in ('jan','sep');
+
+--30
+select to_char(hireddate,'yyyy')year, count(*) from Employees group by to_char(hireddate,'yyyy') having to_char(hireddate,'yyyy') =1985;
+
+--32
+select to_char(hireddate,'yyyy')Year,to_char(hireddate,'month')month, count(*) from Employees group by to_char(hireddate,'yyyy'),to_char(hireddate,'month')month having to_char(hireddate,'yyyy') =1985,to_char(hireddate,'month')='mar';
+
+--33
+select dep_id,count(*)from Employees where to_char(hireddate,'yyyy')=1985 and to_char(hireddate,'mon')='apr' group by to_char(hireddate,'yyyy'), to_char(hireddate,'mon'),dep_id having count(*)>=3;
+
+--34
+select * from Employees where salary=(select max(salary)from Employees);
+
+--35
+select * from Employees where dep_id in(select dep_id from Department where Department='SALES');
+
+--36
+select *from JOB where job_id in (select job_id from JOB where functions='CLERK');
+
+--37
+select *from Employees where dep_id=(select dep_id from Department where loc_id=(select loc_id from LOCA_TION where regional_group='NEWYORK'));
+
+--38
+select count(*) from Employees where dep_id in (select dep_id from Department where d_name='SALES');
+
+--39
+update Employees set salary = salary*10/100 where job_id=(select job_id from JOB where functions='CLERK');
+
+--40
+delete from Employees where dep_id=(select dep_id from Department where d_name='ACCOUNTING');
+
+
+--47
+select * from Employees where salary>(select avg(salary) from Employees where dep_id=emp_id);
+
+--41
+select * from Employees where salary=(select max(salary) from Employees where salary<(select max(salary) from Employees));
+
+--42
+select distinct 
+
+--43
+select * from Employees where salary > all (select salary from Employees where dep_id=30);
+
+--44
+select * from Employees where salary > any (select salary from Employees where dep_id=30);
+
+--45
+select * from Departmentss where not exists(select dep_id from Departmentss d where d.dep_id=e.dep_id );
+
+--46
+select dep_id from Employees where dep_id = !(select dep_id from Departmentss);
+
+--47
+select * from Employees e where salary>(select avg(salary) from Employees where dep_id=emp_id);
+
+--48
+select last_name,dep_id,d_name,salary from Employees e, dep_id d where e.dep_id=d.dep_id;
+
+--49
+select last_name,job_id,functions from Employees  e,JOB  j  where j.job_id=e.job_id;
+
+--50
+ select last_name, dep_id,loc _id,regional _group from Departmentss d,Employees e ,LOCA_TION  l where e.dep_id=d.dep_id and d.loc_id=l.loc_id;
+ 
+ --51
+ select count (*) from Employees e Departmentss  d where e.dep_id=e.dep_id group by d_name;
+ 
+ --52
+ select count(*) from Employees e,Departmentaa d where e.dep_id=d.dep_id group by d_name 
+having  d_name='SALES';
+
+--53
+select count(*) dep_id,d_name from Employees e,Departmentss d where e.dep_id=d.dep_id  group by d_name having count(*)>=5 order by d_name;
+
+--54
+select count(*)  from Employees e,JOB j e.job_id=j.job_id group by functions;
+
+--55
+select count(*) ,loc_id,dep_id from Employees  e,LOCA_TION l,Departmentss d where e.dep_id=d.dep_id and dep_id=(select dep_id from Departmentss where loc_id=(select loc_id from LOCA_TION where regional_group='NEW YORK')));
+
+--56
+--NON EQUI JOINS
+Select emp_id, last_name, grade_id from Employees e, salary_grade s where salary between lower_bound and upper_bound order by last_name;
+
+--57
+select count(*) ,grade_id from Employees salary_grade s where salary between lower_bound and upper_bound group by grade_id order by grade_id desc;
+
+--58
+select count(*), grade_id  from Employeea e ,salary_grade s where salary between lower_bound and upper_bound and lower_bound>= 2000 and upper_bound<5000 group by grade ;
+
+--59
+select last_name ,job_id ,functions from Employees e ,JOB j where e.job_id=j.job_id and job_id=(select job_id where functions='MANAGER');
+
+--60
+Select e.last_name ,emp_name, e.salary emp_salary, m.last_name, mgr_name, m.salary mgr_salary from Employees e, Employees m where e.manager_id=m.emp_id and m.salary;
+
+--61
+Select m.manager_id, count(*) from employee e, employee m where e.employee_id=m.manager_id group by m.manager_id;
+
+--62
+ Select last_name, d.dep_id, d.d_name from Employees e, Departmentss d where e.dep_id(+)=d.dep_id;
+ 
+ --63
+ Select last_name, d.department_id, d.d_name from Employees e, Departmentss d where e.dep_id(+)=d.dep_id and d.dept_id in (select department_id from department where name IN (‘SALES’,’OPERATIONS’));
+ 
+ --64
+ Select functions from JOB where job_id in (Select job_id from Employees where dep_id=(select dep_id from Departmentss where name='SALES')) union Select function from JOB where job_id in (Select job_id from Employees where dept_id=(select dep_id from Departmentss where d_name='ACCOUNTING'));
+ 
+ --64
+ Select functions from JOB where job_id in (Select job_id from Employees where dep_id=(select dep_id from Departmentss where name='SALES')) union all Select function from JOB where job_id in (Select job_id from Employees where dep_id=(select dep_id from Departmentss where d_name='ACCOUNTING'));
+ 
+ --66
+ Select functions from JOB where job_id in (Select job_id from Employees where dep_id=(select dep_id from Departmentss where name='RESEARCH')) intersect Select functions from JOB where job_id in (Select job_id from Employees where dep_id=(select dep_id from Departmentss where d_name='ACCOUNTING')) order by functions;
+
